@@ -10,7 +10,8 @@ _init:
 
     cld
 
-    jmp _main
+    jsr _main
+    brk
 
 catch:
     jmp catch
@@ -21,9 +22,8 @@ irq_handler:
 nmi_handler:
     rti
 
-
 ; TODO: split to separate file
-.segment "ZECTORS"
+.segment "VECTORS"
     .word nmi_handler
     .word _init
     .word irq_handler

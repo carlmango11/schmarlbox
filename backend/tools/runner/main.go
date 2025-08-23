@@ -6,7 +6,6 @@ import (
 
 	"github.com/carlmango11/schmarlbox/backend/box"
 	"github.com/carlmango11/schmarlbox/backend/box/log"
-	"github.com/carlmango11/schmarlbox/backend/box/rom"
 )
 
 //go:embed donkey1.nes
@@ -16,12 +15,12 @@ var donkeyRom []byte
 var colourRom []byte
 
 func main() {
-	log.Debug = false
-
-	n := box.New(rom.FromBytes(donkeyRom))
-	go n.Run()
-
-	for range time.Tick(time.Second) {
-		n.Display()
-	}
+	//log.Debug = false
+	//
+	//n := box.New(rom.FromBytes(donkeyRom))
+	//go n.Run()
+	//
+	//for range time.Tick(time.Second) {
+	//	n.Display()
+	//}
 }

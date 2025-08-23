@@ -2,7 +2,6 @@ package cpu
 
 import (
 	"fmt"
-	"github.com/carlmango11/schmarlbox/backend/box/bus"
 	"github.com/carlmango11/schmarlbox/backend/box/log"
 )
 
@@ -13,6 +12,11 @@ const (
 	VectorReset = 0xFFFC
 	VectorIRQ   = 0xFFFE
 )
+
+type Bus interface {
+	Read(uint16) byte
+	Write(uint16, byte)
+}
 
 type handler func(v byte) (byte, bool)
 type impliedHandler func()
@@ -51,6 +55,7 @@ const (
 	XIndirect             = "indirectX"
 	IndirectY             = "indirectY"
 	Relative              = "relative"
+	ZeroPageAddr          = "zerPageAddr"
 )
 
 type Instr struct {
@@ -78,7 +83,7 @@ const (
 )
 
 type CPU struct {
-	bus     *bus.Bus
+	bus     Bus
 	opCodes map[byte]Instr
 
 	pc            uint16
@@ -86,7 +91,7 @@ type CPU struct {
 	c             int
 }
 
-func New(b *bus.Bus) *CPU {
+func New(b Bus) *CPU {
 	c := &CPU{
 		bus:     b,
 		opCodes: map[byte]Instr{},
@@ -135,18 +140,18 @@ func (c *CPU) State() *State {
 	}
 }
 
-func (c *CPU) LoadState(state State) {
-	for _, e := range state.RAM {
-		c.bus.Write(e[0], uint8(e[1]))
-	}
-
-	c.pc = state.PC
-	c.p = state.P
-	c.s = state.S
-	c.a = state.A
-	c.x = state.X
-	c.y = state.Y
-}
+//func (c *CPU) LoadState(state State) {
+//	for _, e := range state.RAM {
+//		c.bus.Write(e[0], uint8(e[1]))
+//	}
+//
+//	c.pc = state.PC
+//	c.p = state.P
+//	c.s = state.S
+//	c.a = state.A
+//	c.x = state.X
+//	c.y = state.Y
+//}
 
 func (c *CPU) PrintState() {
 	log.Debugf("C: %v\ta:%x x:%x y:%x s:%x pc:%x", c.c, c.a, c.x, c.y, c.s, c.pc)
@@ -156,16 +161,16 @@ func (c *CPU) PrintState() {
 }
 
 func (c *CPU) Tick() {
-	log.Debugf(">> executing at %x", c.pc)
+	log.Debugf(">> executing at 0x%x", c.pc)
 
 	code := c.read()
 
 	instr, ok := c.opCodes[code]
 	if !ok {
-		panic(fmt.Sprintf("unknown opcode %x", code))
+		panic(fmt.Sprintf("unknown opcode 0x%x", code))
 	}
 
-	log.Debugf("instr %v (%v) - %x", instr.name, instr.addrMode, code)
+	log.Debugf("instr %v (%v) - 0x%x", instr.name, instr.addrMode, code)
 
 	if instr.flagChange != nil {
 		c.execFlagChange(instr.flagChange)
@@ -215,13 +220,19 @@ func (c *CPU) Tick() {
 
 	case Relative:
 		c.execRelative(instr.condition)
+
+	case ZeroPageAddr:
+		c.execZeroPageAddr(instr.handler)
 	}
 
 	c.addCycles(instr.cycles)
 
 	c.c++
+	if c.c%1000 == 0 {
+		log.Printf("tick %d", c.c)
+	}
 
-	c.PrintState()
+	//c.PrintState()
 }
 
 func (c *CPU) vectorToPC(vector uint16) {
@@ -353,6 +364,23 @@ func (c *CPU) execIndirectY(f handler) {
 
 	addr := toAddr(hiAddr, loAddr)
 	addr += uint16(c.y)
+
+	val := c.bus.Read(addr)
+
+	newVal, write := f(val)
+
+	if write {
+		c.bus.Write(addr, newVal)
+	}
+}
+
+func (c *CPU) execZeroPageAddr(f handler) {
+	zeroAddr := uint16(c.read())
+
+	loAddr := c.bus.Read(zeroAddr)
+	hiAddr := c.bus.Read((zeroAddr + 1) % 0x100) // wrap around zero page
+
+	addr := toAddr(hiAddr, loAddr)
 
 	val := c.bus.Read(addr)
 

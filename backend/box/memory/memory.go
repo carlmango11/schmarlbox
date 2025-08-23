@@ -5,10 +5,16 @@ type Memory struct {
 	data      []byte
 }
 
-func New(startAddr uint16, init []byte) *Memory {
+func New(startAddr uint16, size int, init []byte) *Memory {
+	data := make([]byte, size, size)
+
+	for i, b := range init {
+		data[i] = b
+	}
+
 	return &Memory{
 		startAddr: startAddr,
-		data:      init,
+		data:      data,
 	}
 }
 
@@ -17,5 +23,5 @@ func (m *Memory) Read(addr uint16) byte {
 }
 
 func (m *Memory) Write(addr uint16, v byte) {
-
+	m.data[addr-m.startAddr] = v
 }

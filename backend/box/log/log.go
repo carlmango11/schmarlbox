@@ -2,7 +2,7 @@ package log
 
 import "log"
 
-var Debug = true
+var Debug = false
 
 func Printf(format string, v ...interface{}) {
 	log.Printf(format, v...)

@@ -1,0 +1,12 @@
+body {
+  background-color: gray;
+}
+
+.display {
+  margin: 0 auto;
+  height: 250px;
+  width: 800px;
+  font-family: "Consolas", "Courier New", "Lucida Console", "Monaco", monospace;
+  background-color: #000;
+  color: #0f0;
+}

@@ -50,6 +50,12 @@ func (c *CPU) initArithmetic() {
 			handler:  c.adc,
 			addrMode: IndirectY,
 		},
+		0x72: {
+			name:     "ADC",
+			cycles:   5,
+			handler:  c.adc,
+			addrMode: ZeroPageAddr,
+		},
 
 		// CMP
 		0xC9: {

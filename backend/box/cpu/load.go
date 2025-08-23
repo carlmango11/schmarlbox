@@ -186,6 +186,12 @@ func (c *CPU) initLoad() {
 			handler:  c.sta,
 			addrMode: ZeroPageX,
 		},
+		0x92: {
+			name:     "STA (zp?)",
+			cycles:   5,
+			handler:  c.sta,
+			addrMode: ZeroPageAddr,
+		},
 		0x81: {
 			name:     "STA",
 			cycles:   6,

@@ -46,7 +46,7 @@ func (b *Bus) Read(addr uint16) byte {
 }
 
 func (b *Bus) Write(addr uint16, v byte) {
-	log.Debugf("bus: write 0x%x", addr)
+	log.Debugf("bus: write at 0x%x: 0x%x", addr, v)
 	b.getComponent(addr).Write(addr, v)
 }
 

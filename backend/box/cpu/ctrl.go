@@ -1,5 +1,7 @@
 package cpu
 
+import "os"
+
 func (c *CPU) initCtrl() {
 	instrs := map[byte]Instr{
 		0x00: {
@@ -45,6 +47,7 @@ func (c *CPU) initCtrl() {
 }
 
 func (c *CPU) brk() {
+	os.Exit(0)
 	c.pushAddr(c.pc + 1)
 	c.pushFlagsToStack()
 
