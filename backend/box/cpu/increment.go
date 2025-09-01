@@ -18,6 +18,11 @@ func (c *CPU) initIncrement() {
 			handler:  c.inc,
 			addrMode: ZeroPage,
 		},
+		0x1A: {
+			cycles:   2,
+			handler:  c.inc,
+			addrMode: Accumulator,
+		},
 		0xF6: {
 			cycles:   2,
 			handler:  c.inc,

@@ -19,11 +19,25 @@ base.lib: crt0.o
 bios.s:
 	/Users/carl/dev/cc65/bin/cc65 $(BIOS_DIR)/bios.c -o $(BUILD_DIR)/bios.s
 
+str.s:
+	/Users/carl/dev/cc65/bin/cc65 $(BIOS_DIR)/str.c -o $(BUILD_DIR)/str.s
+
+str.o: str.s
+	/Users/carl/dev/cc65/bin/ca65 -o $(BUILD_DIR)/str.o $(BUILD_DIR)/str.s
+
 bios.o: bios.s
 	/Users/carl/dev/cc65/bin/ca65 -o $(BUILD_DIR)/bios.o $(BUILD_DIR)/bios.s
 
-bios.out: bios.o base.lib
-	/Users/carl/dev/cc65/bin/ld65 -C $(BIOS_DIR)/system.cfg $(BUILD_DIR)/bios.o $(BUILD_DIR)/base.lib -o $(BUILD_DIR)/bios.out
+bios.out: bios.o base.lib str.o
+	/Users/carl/dev/cc65/bin/ld65 -C $(BIOS_DIR)/system.cfg $(BUILD_DIR)/str.o $(BUILD_DIR)/bios.o $(BUILD_DIR)/base.lib -o $(BUILD_DIR)/bios.out
 
 clean:
 	rm -rf build
+
+install_dev:
+	cp $(BUILD_DIR)/bios.out backend/wasm/
+	GOOS=js GOARCH=wasm GOEXPERIMENT=wasmthread go build -o frontend/public/box.wasm backend/wasm/main.go
+
+	if [ ! -d "frontend/node_modules" ]; then \
+		cd frontend; npm install --silent; \
+	fi

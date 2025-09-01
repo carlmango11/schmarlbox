@@ -4,14 +4,30 @@ import (
 	"fmt"
 	"github.com/carlmango11/schmarlbox/backend/box"
 	"github.com/carlmango11/schmarlbox/backend/box/log"
+	"golang.org/x/term"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	if os.Getenv("IDE") == "true" {
-		log.Debug = true
+	log.Debug = true
+
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	if err != nil {
+		panic(err)
 	}
+	defer term.Restore(int(os.Stdin.Fd()), oldState)
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		log.Printf("Restoring terminal state and exiting...")
+		term.Restore(int(os.Stdin.Fd()), oldState)
+		os.Exit(0)
+	}()
 
 	f, err := os.Open("/Users/carl/IdeaProjects/schmarlbox/build/bios.out")
 	if err != nil {

@@ -1,7 +1,12 @@
 #include <stdint.h>
+#include "str.h"
+
+const char KEY_CR = 0xd;
+const int DISPLAY_ADDR = 0x2200;
+const int INPUT_ADDR = 0x3000;
 
 void write_char(const char c) {
-    volatile uint8_t* addr = (volatile uint8_t*)0x2000;
+    volatile uint8_t* addr = (volatile uint8_t*)DISPLAY_ADDR;
     *addr = (volatile uint8_t) c;
 }
 
@@ -17,11 +22,12 @@ void process_char(const uint8_t c) {
     write_char(c);
 }
 
-void main(void) {
-    volatile uint8_t* input = (volatile uint8_t*)0x3000;
+String* listen_command(void) {
+    volatile uint8_t* input = (volatile uint8_t*)INPUT_ADDR;
+//    String *command = str_new();
+    int i = 0;
 
-    char welcome[] = "\nWelcome to SchmarlBox";
-    print(welcome);
+    print("\r\n> ");
 
     while (1) {
         const uint8_t val = *input;
@@ -30,6 +36,32 @@ void main(void) {
             continue;
         }
 
+        if (val == 'Q') {
+            return NULL;
+        }
+
+        if (val == KEY_CR) {
+            print("lol");
+//            return command;
+        }
+
         process_char(val);
+//        str_append(command, (char)val);
     }
+}
+
+void main(void) {
+    String *command;
+    char welcome[] = "Welcome to SchmarlBox";
+
+    print("\033[2J\033[H\033[1;32m");
+    print(welcome);
+
+    command = listen_command();
+    if (command == NULL) {
+        return;
+    }
+
+    print("exec");
+    print(command->data);
 }

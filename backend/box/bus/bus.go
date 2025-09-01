@@ -61,5 +61,5 @@ func (b *Bus) getComponent(addr uint16) Component {
 		}
 	}
 
-	panic(fmt.Sprintf("bus: unhandled address %x", addr))
+	panic(fmt.Sprintf("bus: unhandled address 0x%x", addr))
 }

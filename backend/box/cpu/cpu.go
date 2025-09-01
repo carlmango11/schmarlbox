@@ -41,21 +41,22 @@ type flagChange struct {
 type AddrMode string
 
 const (
-	Implied      AddrMode = "implied"
-	Accumulator           = "accumulator"
-	Immediate             = "immediate"
-	ZeroPage              = "zeroPage"
-	ZeroPageX             = "zeroPageX"
-	ZeroPageY             = "zeroPageY"
-	Absolute              = "absolute"
-	AbsoluteAddr          = "absoluteAddr"
-	AbsoluteX             = "absoluteX"
-	AbsoluteY             = "absoluteY"
-	Indirect              = "indirect"
-	XIndirect             = "indirectX"
-	IndirectY             = "indirectY"
-	Relative              = "relative"
-	ZeroPageAddr          = "zerPageAddr"
+	Implied          AddrMode = "implied"
+	Accumulator               = "accumulator"
+	Immediate                 = "immediate"
+	ZeroPage                  = "zeroPage"
+	ZeroPageX                 = "zeroPageX"
+	ZeroPageY                 = "zeroPageY"
+	Absolute                  = "absolute"
+	AbsoluteAddr              = "absoluteAddr"
+	AbsoluteX                 = "absoluteX"
+	AbsoluteY                 = "absoluteY"
+	Indirect                  = "indirect"
+	XIndirect                 = "indirectX"
+	IndirectY                 = "indirectY"
+	zeroPageIndirect          = "zeroPageIndirect"
+	Relative                  = "relative"
+	ZeroPageAddr              = "zeroPageAddr"
 )
 
 type Instr struct {
@@ -223,12 +224,15 @@ func (c *CPU) Tick() {
 
 	case ZeroPageAddr:
 		c.execZeroPageAddr(instr.handler)
+
+	case zeroPageIndirect:
+		c.execZeroPageIndirect(instr.handler)
 	}
 
 	c.addCycles(instr.cycles)
 
 	c.c++
-	if c.c%1000 == 0 {
+	if c.c%100000 == 0 {
 		log.Printf("tick %d", c.c)
 	}
 
@@ -375,6 +379,23 @@ func (c *CPU) execIndirectY(f handler) {
 }
 
 func (c *CPU) execZeroPageAddr(f handler) {
+	zeroAddr := uint16(c.read())
+
+	loAddr := c.bus.Read(zeroAddr)
+	hiAddr := c.bus.Read((zeroAddr + 1) % 0x100) // wrap around zero page
+
+	addr := toAddr(hiAddr, loAddr)
+
+	val := c.bus.Read(addr)
+
+	newVal, write := f(val)
+
+	if write {
+		c.bus.Write(addr, newVal)
+	}
+}
+
+func (c *CPU) execZeroPageIndirect(f handler) {
 	zeroAddr := uint16(c.read())
 
 	loAddr := c.bus.Read(zeroAddr)

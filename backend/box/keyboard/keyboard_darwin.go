@@ -1,8 +1,6 @@
 package keyboard
 
 import (
-	"github.com/eiannone/keyboard"
-	"log"
 	"os"
 )
 
@@ -18,22 +16,15 @@ func New() *Keyboard {
 }
 
 func (k *Keyboard) listen() {
-	if os.Getenv("IDE") == "true" {
-		return
-	}
-
-	if err := keyboard.Open(); err != nil {
-		log.Panicf("keyboard not started: %v", err)
-	}
-	defer keyboard.Close()
-
+	buf := make([]byte, 1)
 	for {
-		char, _, err := keyboard.GetKey()
+		_, err := os.Stdin.Read(buf)
 		if err != nil {
-			log.Panicf("keyboard err: %v", err)
+			panic(err)
 		}
 
-		k.lastKey = byte(char)
+		key := buf[0]
+		k.lastKey = key
 	}
 }
 

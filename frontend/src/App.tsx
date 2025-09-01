@@ -17,7 +17,7 @@ function initWasm(setDisplay: (d: string[][]) => void) {
         }
     );
 
-    startDisplay(setDisplay);
+    // startDisplay(setDisplay);
 }
 
 function startDisplay(setDisplay: (d: string[][]) => void) {

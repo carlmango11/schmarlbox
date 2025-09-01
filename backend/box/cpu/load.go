@@ -114,6 +114,12 @@ func (c *CPU) initLoad() {
 			handler:  c.lda,
 			addrMode: IndirectY,
 		},
+		0xB2: {
+			name:     "LDA",
+			cycles:   5,
+			handler:  c.lda,
+			addrMode: zeroPageIndirect,
+		},
 
 		// STX
 		0x8E: {

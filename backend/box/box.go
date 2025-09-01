@@ -10,16 +10,18 @@ import (
 )
 
 const (
-	AddrKeyboard = 0x3000
-	AddrStack    = 0x0100
-	AddrDisplay  = 0x2000
-	AddrROM      = 0x8000
 	AddrZP       = 0x0000
+	AddrStack    = 0x0100
+	AddrRAM      = 0x0200
+	AddrDisplay  = 0x2200
+	AddrKeyboard = 0x3000
+	AddrROM      = 0x8000
 )
 
 const (
-	SizeStack = 0x0100
 	SizeZP    = 0x0100
+	SizeStack = 0x0100
+	SizeRAM   = 0x2000
 )
 
 type Box struct {
@@ -38,12 +40,14 @@ func New(romData []byte) *Box {
 	display := devices.NewDisplay()
 
 	stack := memory.New(AddrStack, SizeStack, nil)
+	ram := memory.New(AddrRAM, SizeRAM, nil)
 
 	b.Connect(AddrZP, SizeZP-1, memory.New(AddrZP, SizeZP, nil))
-	b.Connect(AddrDisplay, AddrDisplay, display)
-	b.Connect(AddrROM, endROM, rom)
 	b.Connect(AddrStack, AddrStack+SizeStack-1, stack)
+	b.Connect(AddrRAM, AddrRAM+SizeRAM-1, ram)
+	b.Connect(AddrDisplay, AddrDisplay, display)
 	b.Connect(AddrKeyboard, AddrKeyboard, keyboard.New())
+	b.Connect(AddrROM, endROM, rom)
 
 	return &Box{
 		cpu:     cpu.New(b),

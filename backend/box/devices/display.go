@@ -2,8 +2,8 @@ package devices
 
 import (
 	"fmt"
-	"log"
-	"os"
+	"github.com/carlmango11/schmarlbox/backend/box/log"
+	
 )
 
 const (
@@ -38,7 +38,10 @@ func (d *Display) Write(addr uint16, val byte) {
 }
 
 func (d *Display) handle(ch byte) {
-	log.Printf("writing char %q at %d,%d", ch, d.row, d.col)
+	fmt.Print(string(ch))
+	log.Printf("input char: 0x%x (%d)", ch, ch)
+	return
+	fmt.Print("\033[2J\033[H")
 	if ch == '\n' {
 		d.row++
 		if d.row > maxRows {
