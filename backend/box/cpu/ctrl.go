@@ -1,10 +1,13 @@
 package cpu
 
-import "os"
+import (
+	"os"
+)
 
 func (c *CPU) initCtrl() {
 	instrs := map[byte]Instr{
 		0x00: {
+			name:           "BRK",
 			cycles:         7,
 			impliedHandler: c.brk,
 			addrMode:       Implied,
@@ -47,7 +50,15 @@ func (c *CPU) initCtrl() {
 }
 
 func (c *CPU) brk() {
-	os.Exit(0)
+	//c.PrintState()
+	//return
+	//log.Printf("breakpoint")
+	//return
+	if c.a == 0 {
+		os.Exit(0)
+	}
+	panic(c.a)
+	os.Exit(int(c.a))
 	c.pushAddr(c.pc + 1)
 	c.pushFlagsToStack()
 

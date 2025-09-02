@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 #include "str.h"
 
 const char KEY_CR = 0xd;
@@ -23,8 +24,9 @@ void process_char(const uint8_t c) {
 }
 
 String* listen_command(void) {
+    String *command = str_new();
+
     volatile uint8_t* input = (volatile uint8_t*)INPUT_ADDR;
-//    String *command = str_new();
     int i = 0;
 
     print("\r\n> ");
@@ -41,12 +43,11 @@ String* listen_command(void) {
         }
 
         if (val == KEY_CR) {
-            print("lol");
-//            return command;
+            return command;
         }
 
         process_char(val);
-//        str_append(command, (char)val);
+        str_append(command, (char)val);
     }
 }
 
@@ -57,11 +58,18 @@ void main(void) {
     print("\033[2J\033[H\033[1;32m");
     print(welcome);
 
-    command = listen_command();
-    if (command == NULL) {
-        return;
-    }
+    while (1) {
+        command = listen_command();
+        if (command == NULL) {
+            break;
+        }
 
-    print("exec");
-    print(command->data);
+        if (strcmp(command->data, "quit") == 0) {
+            exit(0);
+        }
+        exit(1);
+
+        print("\r\nExecuting: ");
+        print(command->data);
+    }
 }

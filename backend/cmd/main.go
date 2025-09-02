@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/carlmango11/schmarlbox/backend/box"
-	"github.com/carlmango11/schmarlbox/backend/box/log"
 	"golang.org/x/term"
 	"io"
 	"os"
@@ -12,7 +11,7 @@ import (
 )
 
 func main() {
-	log.Debug = true
+	//log.Debug = true
 
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	if err != nil {
@@ -24,7 +23,6 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigs
-		log.Printf("Restoring terminal state and exiting...")
 		term.Restore(int(os.Stdin.Fd()), oldState)
 		os.Exit(0)
 	}()

@@ -1,12 +1,22 @@
     .export _init
+    .export _exit
     .export __STARTUP__ : absolute = 1 ; mark this as the startup code
     .import _main
+.import    copydata, zerobss, initlib, donelib
+
+.include  "zeropage.inc"
 
 .segment "STARTUP"
+
+_exit:
+    brk
 
 _init:
     ldx #$FF ; stack pointer
     txs
+          JSR     zerobss              ; Clear BSS segment
+          JSR     copydata             ; Initialize DATA segment
+          JSR     initlib              ; Run constructors
 
     cld
 

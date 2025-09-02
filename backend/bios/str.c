@@ -1,23 +1,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include "str.h"
 
-const int INIT_SIZE = 3;
+const size_t INIT_SIZE = 16;
 
 String* str_new() {
     String *s = malloc(sizeof(String));
 
     s->len = 0;
     s->cap = INIT_SIZE;
-    s->data = malloc(s->cap);
 
-    if(!s->data) {
-//        perror("malloc str error");
-//        exit(1);
+    s->data = malloc(s->cap);
+    if (s->data == NULL) {
+        exit(1);
     }
 
     s->data[0] = '\0';
+
     return s;
 }
 
@@ -26,9 +27,8 @@ void str_append(String *s, char c) {
         s->cap *= s->cap;
         s->data = realloc(s->data, s->cap);
 
-        if(!s->data) {
-//            perror("realloc str error");
-//            exit(1);
+        if(s->data == NULL) {
+            exit(1);
         }
     }
 

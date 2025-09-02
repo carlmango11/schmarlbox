@@ -11,7 +11,7 @@ var Debug = false
 var out *os.File
 
 func init() {
-	f, err := os.OpenFile("output.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	f, err := os.OpenFile("output.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if err != nil {
 		panic(err)
 	}

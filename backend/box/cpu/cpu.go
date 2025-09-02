@@ -236,7 +236,7 @@ func (c *CPU) Tick() {
 		log.Printf("tick %d", c.c)
 	}
 
-	//c.PrintState()
+	c.PrintState()
 }
 
 func (c *CPU) vectorToPC(vector uint16) {
@@ -499,6 +499,10 @@ func (c *CPU) pushAddr(addr uint16) {
 }
 
 func (c *CPU) pushStack(v byte) {
+	if c.s == 0 {
+		panic("stack overflow")
+	}
+
 	c.bus.Write(c.stackAddr(), v)
 	c.s--
 }

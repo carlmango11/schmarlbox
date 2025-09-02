@@ -3,7 +3,6 @@ package devices
 import (
 	"fmt"
 	"github.com/carlmango11/schmarlbox/backend/box/log"
-	
 )
 
 const (
@@ -12,8 +11,6 @@ const (
 )
 
 type Display struct {
-	output *os.File
-
 	row, col int
 	screen   [maxRows][maxCols]byte
 }
@@ -59,23 +56,6 @@ func (d *Display) handle(ch byte) {
 	}
 
 	//d.printFile()
-}
-
-func (d *Display) printFile() {
-	d.output.WriteString("\n=================\n")
-	for r := range d.screen {
-		for c := range d.screen[r] {
-			ch := string(d.screen[r][c])
-
-			if d.screen[r][c] == 0 {
-				ch = " "
-			}
-
-			log.Println(ch)
-			d.output.Write([]byte(fmt.Sprintf("%v", ch)))
-		}
-		fmt.Printf("\n")
-	}
 }
 
 func (d *Display) State() [maxRows][maxCols]string {
