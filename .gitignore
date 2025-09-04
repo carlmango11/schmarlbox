@@ -1,2 +1,5 @@
 /.idea/
 schmarlbox.iml
+.DS_Store
+build/
+frontend/node_modules/
