@@ -38,10 +38,6 @@ String* listen_command(void) {
             continue;
         }
 
-        if (val == 'Q') {
-            return NULL;
-        }
-
         if (val == KEY_CR) {
             return command;
         }
@@ -67,9 +63,8 @@ void main(void) {
         if (strcmp(command->data, "quit") == 0) {
             exit(0);
         }
-        exit(1);
 
-        print("\r\nExecuting: ");
+        print("\r\nYou typed: ");
         print(command->data);
     }
 }

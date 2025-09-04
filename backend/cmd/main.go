@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/carlmango11/schmarlbox/backend/box"
 	"golang.org/x/term"
 	"io"
@@ -40,6 +39,4 @@ func main() {
 	box := box.New(romData)
 
 	box.Run()
-
-	fmt.Println("END")
 }
