@@ -1,12 +1,24 @@
-    .export _init
-    .export _exit
-    .export __STARTUP__ : absolute = 1 ; mark this as the startup code
-    .import _main
+.export _init
+.export _exit
+.export _enable_paging
+.export _disable_paging
+.export __STARTUP__ : absolute = 1 ; mark this as the startup code
+.import _main
 .import    copydata, zerobss, initlib, donelib
 
 .include  "zeropage.inc"
 
 .segment "STARTUP"
+
+.proc _enable_paging
+    .byte $02
+    rts
+.endproc
+
+.proc _disable_paging
+    .byte $03
+    rts
+.endproc
 
 _exit:
     brk
@@ -14,9 +26,10 @@ _exit:
 _init:
     ldx #$FF ; stack pointer
     txs
-          JSR     zerobss              ; Clear BSS segment
-          JSR     copydata             ; Initialize DATA segment
-          JSR     initlib              ; Run constructors
+
+    jsr     zerobss              ; Clear BSS segment
+    jsr     copydata             ; Initialize DATA segment
+    jsr     initlib              ; Run constructors
 
     cld
 

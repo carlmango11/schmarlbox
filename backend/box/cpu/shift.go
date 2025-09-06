@@ -155,7 +155,7 @@ func (c *CPU) asl(x byte) (byte, bool) {
 
 func (c *CPU) ror(v byte) (byte, bool) {
 	var left byte
-	if c.flagSet(FlagC) {
+	if c.controlFlagSet(FlagC) {
 		left = 1
 	}
 
@@ -171,7 +171,7 @@ func (c *CPU) ror(v byte) (byte, bool) {
 
 func (c *CPU) rol(v byte) (byte, bool) {
 	var right byte
-	if c.flagSet(FlagC) {
+	if c.controlFlagSet(FlagC) {
 		right = 1
 	}
 

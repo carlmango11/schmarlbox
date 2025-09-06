@@ -54,6 +54,10 @@ func (c *CPU) brk() {
 	//return
 	//log.Printf("breakpoint")
 	//return
+	//log.Printf("OMG 0x%v", c.popStack())
+	//log.Printf("OMG 0x%v", c.popStack())
+	//log.Printf("OMG 0x%v", c.popStack())
+	//log.Printf("OMG 0x%v", c.popStack())
 	if c.a == 0 {
 		os.Exit(0)
 	}

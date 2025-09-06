@@ -34,8 +34,9 @@ type State struct {
 }
 
 type flagChange struct {
-	flag Flag
-	set  bool
+	target FlagTarget
+	flag   Flag
+	set    bool
 }
 
 type AddrMode string
@@ -71,6 +72,13 @@ type Instr struct {
 	flagChange     *flagChange
 }
 
+type FlagTarget int
+
+const (
+	TargetControl FlagTarget = iota
+	TargetPaging
+)
+
 type Flag byte
 
 const (
@@ -81,15 +89,17 @@ const (
 	FlagI      = 2
 	FlagZ      = 1
 	FlagC      = 0
+
+	FlagPaging = 0
 )
 
 type CPU struct {
 	bus     Bus
 	opCodes map[byte]Instr
 
-	pc            uint16
-	s, p, a, x, y byte
-	c             int
+	pc               uint16
+	s, p, m, a, x, y byte
+	c                int
 }
 
 func New(b Bus) *CPU {
@@ -116,6 +126,7 @@ func (c *CPU) initInstrs() {
 	c.initCtrl()
 	c.initBranch()
 	c.initFlags()
+	c.initPaging()
 	c.initNop()
 }
 
@@ -156,9 +167,9 @@ func (c *CPU) State() *State {
 
 func (c *CPU) PrintState() {
 	log.Debugf("C: %v\ta:%x x:%x y:%x s:%x pc:%x", c.c, c.a, c.x, c.y, c.s, c.pc)
-	log.Debugf("N: %t V: %t B: %t D: %t I: %t Z: %t C: %t",
-		c.flagSet(FlagN), c.flagSet(FlagV), c.flagSet(FlagB), c.flagSet(FlagD),
-		c.flagSet(FlagI), c.flagSet(FlagZ), c.flagSet(FlagC))
+	log.Debugf("N: %t V: %t B: %t D: %t I: %t Z: %t C: %t PG: %t",
+		c.controlFlagSet(FlagN), c.controlFlagSet(FlagV), c.controlFlagSet(FlagB), c.controlFlagSet(FlagD),
+		c.controlFlagSet(FlagI), c.controlFlagSet(FlagZ), c.controlFlagSet(FlagC), c.pagingFlagSet(FlagPaging))
 }
 
 func (c *CPU) Tick() {
@@ -257,10 +268,18 @@ func (c *CPU) read() byte {
 }
 
 func (c *CPU) execFlagChange(fc *flagChange) {
-	if fc.set {
-		c.setFlag(fc.flag)
-	} else {
-		c.clearFlag(fc.flag)
+	if fc.target == TargetControl {
+		if fc.set {
+			c.setControlFlag(fc.flag)
+		} else {
+			c.clearControlFlag(fc.flag)
+		}
+	} else if fc.target == TargetPaging {
+		if fc.set {
+			c.setPagingFlag(fc.flag)
+		} else {
+			c.clearPagingFlag(fc.flag)
+		}
 	}
 }
 
@@ -451,24 +470,43 @@ func (c *CPU) execAbsoluteGeneric(f handler, addition byte) {
 
 func (c *CPU) setFlagTo(index Flag, value bool) {
 	if value {
-		c.setFlag(index)
+		c.setControlFlag(index)
 	} else {
-		c.clearFlag(index)
+		c.clearControlFlag(index)
 	}
 }
 
-func (c *CPU) setFlag(index Flag) {
+func (c *CPU) setPagingFlag(index Flag) {
+	v := byte(1) << index
+	c.m = c.m | v
+}
+
+func (c *CPU) setControlFlag(index Flag) {
 	v := byte(1) << index
 	c.p = c.p | v
 }
 
-func (c *CPU) clearFlag(index Flag) {
+func (c *CPU) clearPagingFlag(index Flag) {
 	v := byte(1) << index
+
+	c.m = c.m & ^v
+}
+
+func (c *CPU) clearControlFlag(index Flag) {
+	v := byte(1) << index
+
 	c.p = c.p & ^v
 }
 
-func (c *CPU) flagSet(index Flag) bool {
+func (c *CPU) controlFlagSet(index Flag) bool {
 	v := c.p >> index
+	v &= 0x01
+
+	return v == 1
+}
+
+func (c *CPU) pagingFlagSet(index Flag) bool {
+	v := c.m >> index
 	v &= 0x01
 
 	return v == 1

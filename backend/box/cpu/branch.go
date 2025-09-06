@@ -19,33 +19,33 @@ func (c *CPU) initBranch() {
 }
 
 func (c *CPU) bpl() bool {
-	return !c.flagSet(FlagN)
+	return !c.controlFlagSet(FlagN)
 }
 
 func (c *CPU) bmi() bool {
-	return c.flagSet(FlagN)
+	return c.controlFlagSet(FlagN)
 }
 
 func (c *CPU) bvc() bool {
-	return !c.flagSet(FlagV)
+	return !c.controlFlagSet(FlagV)
 }
 
 func (c *CPU) bvs() bool {
-	return c.flagSet(FlagV)
+	return c.controlFlagSet(FlagV)
 }
 
 func (c *CPU) bcc() bool {
-	return !c.flagSet(FlagC)
+	return !c.controlFlagSet(FlagC)
 }
 
 func (c *CPU) bcs() bool {
-	return c.flagSet(FlagC)
+	return c.controlFlagSet(FlagC)
 }
 
 func (c *CPU) bne() bool {
-	return !c.flagSet(FlagZ)
+	return !c.controlFlagSet(FlagZ)
 }
 
 func (c *CPU) beq() bool {
-	return c.flagSet(FlagZ)
+	return c.controlFlagSet(FlagZ)
 }

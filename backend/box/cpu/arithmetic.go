@@ -230,7 +230,7 @@ func (c *CPU) sbc(v byte) (byte, bool) {
 
 // TODO: carry flag, page boundary
 func (c *CPU) adc(v byte) (byte, bool) {
-	hadCarry := c.flagSet(FlagC)
+	hadCarry := c.controlFlagSet(FlagC)
 
 	c.addBinary(v, hadCarry)
 

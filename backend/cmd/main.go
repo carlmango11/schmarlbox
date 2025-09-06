@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/carlmango11/schmarlbox/backend/box"
+	"github.com/carlmango11/schmarlbox/backend/box/log"
 	"golang.org/x/term"
 	"io"
 	"os"
@@ -10,7 +11,7 @@ import (
 )
 
 func main() {
-	//log.Debug = true
+	log.Debug = true
 
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	if err != nil {

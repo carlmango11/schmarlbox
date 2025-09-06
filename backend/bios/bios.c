@@ -6,6 +6,14 @@ const char KEY_CR = 0xd;
 const int DISPLAY_ADDR = 0x2200;
 const int INPUT_ADDR = 0x3000;
 
+typedef unsigned char bool;
+
+#define true 1
+#define false 0
+
+extern void enable_paging(void);
+extern void disable_paging(void);
+
 void write_char(const char c) {
     volatile uint8_t* addr = (volatile uint8_t*)DISPLAY_ADDR;
     *addr = (volatile uint8_t) c;
@@ -47,12 +55,24 @@ String* listen_command(void) {
     }
 }
 
+void set_paging(bool b) {
+    if (b) {
+        enable_paging();
+    } else {
+        disable_paging();
+    }
+}
+
 void main(void) {
     String *command;
     char welcome[] = "Welcome to SchmarlBox";
 
     print("\033[2J\033[H\033[1;32m");
     print(welcome);
+
+    set_paging(true);
+    set_paging(false);
+    exit(0);
 
     while (1) {
         command = listen_command();
